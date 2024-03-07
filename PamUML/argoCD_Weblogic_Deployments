@@ -1,0 +1,28 @@
+@startuml
+!theme plain
+
+actor Developer
+entity "GitHub" as GitHub
+entity "GitHub\nActions" as GHA
+database "Artifactory" as Artifactory
+entity "ArgoCD" as ArgoCD
+entity "Kubernetes\nCluster" as Kubernetes
+entity "WebLogic\nServer" as WebLogic
+
+Developer -> GitHub : Commit & Push to\nFeature/Hotfix Branch
+Developer -> GitHub : Create Pull Request\n(Main Branch)
+GitHub -> Developer : PR Review & Approval
+GitHub -> GHA : Trigger CI Workflows\n(On PR Merge)
+GHA -> Artifactory : Build & Push\nArtifacts/Docker Images
+
+Artifactory -[#blue]-> ArgoCD : Inform about\nNew Artifacts
+ArgoCD -> Kubernetes : Deploy New Version
+
+Artifactory -[#green]-> WebLogic : Deploy New Version\nDirectly
+
+note right of GHA : CI includes building,\ntesting, etc.
+note right of Artifactory : Stores artifacts\n& Docker images
+note right of ArgoCD : Monitors for changes\nin Artifactory
+note over Kubernetes, WebLogic : Separate Deployment Flows
+
+@enduml
